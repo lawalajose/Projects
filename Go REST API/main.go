@@ -1,20 +1,39 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
-	"go-rest-api/db"
-	"go-rest-api/models"
+	"fmt"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/lawalajose/go-rest-api/models"
 )
 
 func main() {
-	db.InitDB()
 	server := gin.Default()
 
-	server.GET("/events", getEvents) //GET, POST, PUSH, PATCH, DELETE
+	event1 := models.Event{
+		ID:          1,
+		Name:        "Jummah",
+		Description: "Congregational Prayer",
+		Location:    "Central Mosque",
+		UserID:      1,
+	}
+	event2 := models.Event{
+		ID:          2,
+		Name:        "Aqdu",
+		Description: "Marriage Ceremony",
+		Location:    "Mosque Hall",
+		UserID:      2,
+	}
+
+	event1.Save()
+	event2.Save()
+
+	server.GET("/events", getEvents)
 	server.POST("/events", createEvent)
 
-	server.Run(":8080") //Localhost
+	fmt.Println("Server running on port 8080")
+	server.Run(":8080")
 
 }
 
@@ -28,7 +47,7 @@ func createEvent(context *gin.Context) {
 	err := context.ShouldBindJSON(&event)
 
 	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"message": "Could not parse request data."})
+		context.JSON(http.StatusBadRequest, gin.H{"Message": "Could not parse request data"})
 		return
 	}
 
@@ -36,6 +55,6 @@ func createEvent(context *gin.Context) {
 	event.UserID = 1
 	event.Save()
 
-	context.JSON(http.StatusCreated, gin.H{"message": "Event created!", "event": event})
+	context.JSON(http.StatusCreated, gin.H{"Message": "event created successfuly", "event": event})
 
 }
